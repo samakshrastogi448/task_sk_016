@@ -1,0 +1,43 @@
+name: Production QA
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  production-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRODUCTION_URL: https://tasksk016.vercel.app
+    steps:
+      - name: Checkout verified source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Probe production URL
+        id: probe
+        shell: bash
+        run: |
+          code=$(curl -L -sS -o /tmp/project.html -w '%{http_code}' --max-time 20 "$PRODUCTION_URL" || true)
+          bytes=$(wc -c < /tmp/project.html 2>/dev/null || echo 0)
+          if [[ "$code" =~ ^[23][0-9][0-9]$ && "$bytes" -gt 100 ]]; then echo "live=true" >> "$GITHUB_OUTPUT"; else echo "live=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Waiting for manual Vercel
+        if: steps.probe.outputs.live != 'true'
+        run: echo "GitHub-ready; waiting for matching Git-linked Vercel production deployment."
+      - name: Run multi-viewport production QA
+        if: steps.probe.outputs.live == 'true'
+        run: npm run qa:production
+      - name: Upload QA evidence
+        if: always() && steps.probe.outputs.live == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-qa-${{ github.sha }}
+          path: qa-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
