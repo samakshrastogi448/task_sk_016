@@ -11,7 +11,7 @@ export const experience={
     'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1800&q=78',
     'https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=1800&q=78',
     'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1800&q=78',
-    'https://images.unsplash.com/photo-1519741347686-c1e0a0dfd293?auto=format&fit=crop&w=1800&q=78'
+    'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1800&q=78'
   ],
   scenes:[
     {label:'01 / Arrival',title:'The city falls below the music.',note:'Terrace doors open at blue hour.'},
